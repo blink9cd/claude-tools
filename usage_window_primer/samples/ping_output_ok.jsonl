@@ -1,0 +1,4 @@
+{"type": "system", "subtype": "init"}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "ok"}]}}
+{"type": "rate_limit_event", "rate_limit_info": {"status": "allowed", "resetsAt": 1767290400, "rateLimitType": "five_hour", "unifiedWindows": {"five_hour": {"utilization": 0.07, "resetsAt": 1767290400}, "seven_day": {"utilization": 0.01, "resetsAt": 1767830400}}}}
+{"type": "result", "subtype": "success", "is_error": false, "result": "ok"}

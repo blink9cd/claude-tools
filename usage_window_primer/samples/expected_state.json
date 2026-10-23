@@ -1,0 +1,8 @@
+{
+  "consecutive_failures": 0,
+  "last_attempt_at": "<the moment the tick ran>",
+  "last_ping_at": "<the moment the tick ran>",
+  "last_outcome": "ok",
+  "window_end_source": "estimated",
+  "window_ends_at": "<five hours after the moment the tick ran>"
+}

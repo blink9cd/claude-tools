@@ -1,0 +1,7 @@
+{
+  "claude_path": "claude",
+  "model": "haiku",
+  "poll_minutes": 5,
+  "prompt": "Reply with the single word: ok",
+  "start": null
+}
