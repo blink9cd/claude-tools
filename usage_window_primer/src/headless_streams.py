@@ -1,7 +1,7 @@
 """Somewhere for output to go when the process has no console.
 
-Under ``pythonw.exe`` -- how a Windows scheduled task runs without flashing a console --
-``sys.stdout`` and ``sys.stderr`` are None, so every ``ERROR:`` and ``WARNING:`` line a
+Under ``pythonw.exe``, which is how a Windows scheduled task runs without flashing a
+console, ``sys.stdout`` and ``sys.stderr`` are None, so every ``ERROR:`` and ``WARNING:`` line a
 tick writes would be lost. Each missing stream is replaced by an append-mode log file in
 the state directory: ``task.out.log`` and ``task.err.log``, the twins of the
 ``launchd.out.log`` and ``launchd.err.log`` launchd captures on macOS. A stream that

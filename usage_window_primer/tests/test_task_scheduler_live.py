@@ -1,4 +1,4 @@
-r"""One real Task Scheduler round trip through the real `schtasks` -- the boundary proof.
+r"""One real Task Scheduler round trip through the real `schtasks`: the boundary proof.
 
 Every other Windows suite drives `TaskSchedulerBackend` through a scripted runner, which
 proves the argv and the parsing but not the CONTRACT: Task Scheduler refusing the

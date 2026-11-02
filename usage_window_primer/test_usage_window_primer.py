@@ -103,7 +103,7 @@ class GroupedSuiteDiscoveryTest(unittest.TestCase):
     """This module's real load must include every grouped file at its floor."""
 
     def test_load_tests_folds_in_every_grouped_file(self) -> None:
-        # Loads THIS module the way unittest.main does, so deleting load_tests fails
+        # Loads this module the way unittest.main does, so deleting load_tests fails
         # here instead of silently dropping every grouped suite from the coverage run.
         loaded = unittest.TestLoader().loadTestsFromModule(sys.modules[__name__])
         counts = _tests_by_file(loaded)

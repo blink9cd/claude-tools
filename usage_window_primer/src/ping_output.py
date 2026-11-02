@@ -4,12 +4,12 @@ The output is one JSON object per line from an external process whose format thi
 project does not control, so `parse_ping_output` treats every line as untrusted and never
 raises. Two events matter, both measured on a real ping:
 
-* ``rate_limit_event`` -- its ``rate_limit_info.unifiedWindows.five_hour.resetsAt``
+* ``rate_limit_event``: its ``rate_limit_info.unifiedWindows.five_hour.resetsAt``
   (epoch seconds) is the authoritative end of the current 5-hour window, and its
   ``status`` is ``rejected`` when the account is at its limit;
-* ``result`` -- the call succeeded only when its ``subtype`` is ``success`` and its
-  ``is_error`` is false. An error result can keep subtype ``success`` -- an API error such
-  as an expired login does -- so a failure's detail quotes the event's own ``result`` text
+* ``result``: the call succeeded only when its ``subtype`` is ``success`` and its
+  ``is_error`` is false. An error result can keep subtype ``success``, as an API error such
+  as an expired login does, so a failure's detail quotes the event's own ``result`` text
   when it carries any, rather than naming the subtype alone.
 
 A ping killed at its timeout never reaches its ``result``; `describe_last_event` names the
@@ -99,7 +99,7 @@ def _result_message(result: dict[str, object]) -> str | None:
 def _failed_result_detail(result: dict[str, object]) -> str:
     """Why a result event that is not a success failed, in the CLI's own words when it gave any.
 
-    An API error -- an expired login among them -- arrives with ``subtype`` still ``success``
+    An API error, an expired login among them, arrives with ``subtype`` still ``success``
     and only ``is_error`` set, so naming the subtype alone would log "success" for a failure.
     """
     subtype = result.get("subtype")

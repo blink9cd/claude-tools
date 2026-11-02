@@ -3,8 +3,8 @@
 usage_window_primer.py and src/process_run.py put stdio_utf8, help_formatter and bounded_run on
 sys.path at one fixed place each, the library's folder directly under the repository root
 (stdio_utf8/stdio_utf8.md, "How this project's tools import it"). A search of the parent
-directories instead could also match a same-named folder above the checkout -- a shared
-temporary directory, say. This copies the tool into a checkout-shaped tree, plants a
+directories instead could also match a same-named folder above the checkout, such as one
+in a shared temporary directory. This copies the tool into a checkout-shaped tree, plants a
 decoy of each library above it, and runs the real CLI in a real child process: the only
 way to observe which folder an import actually came from.
 """
@@ -33,7 +33,7 @@ _HELP_FORMATTER = _STDIO_UTF8.parent.parent / "help_formatter" / "help_formatter
 #: A generous ceiling for the child: a hung CLI must fail this suite, never hang it.
 _CHILD_TIMEOUT_SECONDS = 60.0
 
-#: A standard-library module the tool imports only AFTER its bootstraps have run
+#: A standard-library module the tool imports only after its bootstraps have run
 #: (src/state_store.py), so a decoy of it in an admitted folder would be imported instead.
 _SHADOWED_MODULE = "json.py"
 
@@ -56,7 +56,7 @@ def _plant_library(folder: Path, library: Path) -> Path:
     """Copy the library file *library*, and its private src/ if any, into a new *folder*.
 
     The src/ travels because a library that owns one imports it at load time from beside its
-    own file (bounded_run's drain does), so a copy without it fails to import at all -- and a
+    own file (bounded_run's drain does), so a copy without it fails to import at all, and a
     decoy that cannot import leaves no mark, which would pass this test for the wrong reason.
     """
     folder.mkdir(parents=True)

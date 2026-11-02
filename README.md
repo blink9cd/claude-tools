@@ -11,6 +11,35 @@ tools and their tests use, shipped with their own tests.
 
 Not affiliated with or endorsed by Anthropic.
 
+Clone the repository, then run every command below from inside it:
+
+```bash
+git clone <repository-url> claude-tools
+cd claude-tools || exit
+```
+
+## Install
+
+Needs Python 3.12 or newer. Install into a virtual
+environment, because Homebrew and Debian Python refuse a
+system-wide `pip install`:
+
+```bash
+python3 -m venv .venv
+# shellcheck source=/dev/null # the activate script exists only once the line above has run
+source .venv/bin/activate
+pip install '.[test]'
+```
+
+The commands below assume the venv is active, so `python`
+is the venv's interpreter.
+
+On a system whose `python3` is older than 3.12, such as stock macOS, create the venv
+with `python3.12 -m venv .venv` instead.
+
+The tools themselves use only the standard library; the `test` extra installs Hypothesis,
+which the test suites need. `remote_session_reviver` needs no Python at all.
+
 ## usage_window_primer
 
 A Claude subscription's 5-hour usage window starts on the first message after the previous
@@ -22,24 +51,23 @@ ended, so a fresh window is already running when you return.
 
 - macOS, with the Claude Code CLI (`claude`) on `PATH` and signed in.
 - Python 3.12 or newer. The stock `python3` on macOS is too old; install 3.12 or newer,
-  for example from python.org or Homebrew. The standard library is enough to run the tool;
-  the tests need Hypothesis.
+  for example from python.org or Homebrew, and make the venv in *Install* with it.
 - Windows: a Task Scheduler backend is included but has not been run on a Windows machine
   yet. Treat it as untested.
 
 ### Install
 
 ```bash
-git clone <repository-url> claude-tools
-python3.12 claude-tools/usage_window_primer/usage_window_primer.py --mode install
-python3.12 claude-tools/usage_window_primer/usage_window_primer.py --mode status
+python usage_window_primer/usage_window_primer.py --mode install
+python usage_window_primer/usage_window_primer.py --mode status
 ```
 
 Install writes a launchd user agent and loads it, recording the absolute paths of the
-interpreter, the script and `claude`; if any of them moves, run install again. From then on
-macOS runs the tool every few minutes, on wake and at login, with no terminal or app open.
-`--mode uninstall` removes the agent and keeps the recorded state. Every option, the exit
-codes and what each run records are in [`usage_window_primer/usage_window_primer.md`](usage_window_primer/usage_window_primer.md).
+interpreter it ran under (the venv's), the script, and `claude`. If any of them moves, or
+the venv is deleted, run install again. From then on macOS runs the tool every few
+minutes, on wake and at login, with no terminal or app open. `--mode uninstall` removes
+the agent and keeps the recorded state. Every option, the exit codes, and what each run
+records are in [`usage_window_primer/usage_window_primer.md`](usage_window_primer/usage_window_primer.md).
 
 ### The ping and what it costs
 
@@ -47,7 +75,7 @@ codes and what each run records are in [`usage_window_primer/usage_window_primer
 CLAUDE_CODE_DISABLE_CLAUDE_MDS=1 claude -p "Reply with the single word: ok" --model haiku --setting-sources "" --tools "" --strict-mcp-config --no-session-persistence --max-turns 1 --output-format stream-json --verbose
 ```
 
-It loads no instruction files, hooks, plugins or tools, and writes no transcript. Measured
+It loads no instruction files, hooks, plugins, or tools, and writes no transcript. Measured
 on 2026-10-19: 3,697 input tokens per ping. A successful ping goes out at most once per window, about five a day if the machine is awake all day; a failed one is
 retried on the next tick. A ping counts against your
 usage like any other message.
@@ -102,18 +130,25 @@ brings its Remote Control back.
 
 ### Install
 
-1. In the app's **Code** tab, open **Scheduled**, create a task named `remote-session-reviver`, and
+1. Make the task's folder first, so the app's folder picker can select it:
+
+   ```bash
+   mkdir -p "$HOME/.claude/scheduled-tasks/remote-session-reviver"
+   ```
+
+2. In the app's **Code** tab, open **Scheduled**, create a task named `remote-session-reviver`, and
    give it these settings:
    - Schedule: hourly (`7 * * * *`).
-   - Permission mode: **Auto** (Manual mode asks before archiving, and nobody is there to
+   - Permission mode: Auto (Manual mode asks before archiving, and nobody is there to
      answer).
-   - Model: **Haiku**.
-   - Folder: the task's own folder, `~/.claude/scheduled-tasks/remote-session-reviver`.
-2. Copy this folder's `SKILL.md` over the task's prompt:
+   - Model: Haiku.
+   - Folder: the task's own folder, `~/.claude/scheduled-tasks/remote-session-reviver`, the one
+     step 1 made.
+3. Copy this folder's `SKILL.md` over the task's prompt:
 
-```bash
-cp claude-tools/remote_session_reviver/SKILL.md "$HOME/.claude/scheduled-tasks/remote-session-reviver/SKILL.md"
-```
+   ```bash
+   cp remote_session_reviver/SKILL.md "$HOME/.claude/scheduled-tasks/remote-session-reviver/SKILL.md"
+   ```
 
 The full steps, including how to reach the hidden `~/.claude` folder in the picker, are in
 [`remote_session_reviver/remote_session_reviver.md`](remote_session_reviver/remote_session_reviver.md).
@@ -146,16 +181,16 @@ with no warranty.
 
 ## Running the tests
 
-With Hypothesis installed (the version the `test` extra in `pyproject.toml` pins), each
-suite runs from its own folder's test file:
+With the venv from *Install* active, which holds the Hypothesis version the `test` extra
+pins, each suite runs from its own folder's test file:
 
 ```bash
-python3.12 claude-tools/usage_window_primer/test_usage_window_primer.py
-python3.12 claude-tools/bounded_run/test_bounded_run.py
-python3.12 claude-tools/help_formatter/test_help_formatter.py
-python3.12 claude-tools/live_pid_guard/test_live_pid_guard.py
-python3.12 claude-tools/schedule_artifacts/test_schedule_artifacts.py
-python3.12 claude-tools/stdio_utf8/test_stdio_utf8.py
+python usage_window_primer/test_usage_window_primer.py
+python bounded_run/test_bounded_run.py
+python help_formatter/test_help_formatter.py
+python live_pid_guard/test_live_pid_guard.py
+python os_schedule_gen/test_os_schedule_gen.py
+python stdio_utf8/test_stdio_utf8.py
 ```
 
 The live tests stay opt-in; [`usage_window_primer/usage_window_primer.md`](usage_window_primer/usage_window_primer.md) explains

@@ -1,10 +1,10 @@
 """The failure-streak alert: when it fires, what it says, and how it reaches osascript.
 
 Everything here but three tests is pure or runs against a `ScriptedRunner`. The argv
-route tests run the real `osascript`, with a script that only RETURNS its arguments, so
+route tests run the real `osascript`, with a script that only returns its arguments, so
 they show nothing on screen and change nothing on the host while proving that text
-passed as argv arrives unaltered -- the quoting layer the notification route relies on
-not having -- and that a dash-leading title is not taken for an option. They call
+passed as argv arrives unaltered (the quoting layer the notification route relies on
+not having), and that a dash-leading title is not taken for an option. They call
 osascript by its absolute path, as the tool does, which a stand-in first on PATH cannot
 answer, so `USAGE_WINDOW_PRIMER_OFFLINE=1` skips them for a run that must not reach the real one,
 as in an export's proof. The compile
@@ -153,7 +153,7 @@ class NotifyCommandTest(unittest.TestCase):
 
     def test_a_separator_ends_option_parsing_just_before_the_title(self) -> None:
         # Regression: without `--`, a title starting with `-` is read as an osascript
-        # option -- a usage error, exit 2, and no notification.
+        # option: a usage error, exit 2, and no notification.
         command = build_notify_command(Alert("-T", "-M"))
         self.assertEqual(command[-3:], ["--", "-T", "-M"])
         self.assertEqual(command.count("--"), 1)
@@ -250,9 +250,9 @@ class ArgvRouteTest(unittest.TestCase):
         self.assertEqual(out.removesuffix("\n"), _HOSTILE_TEXT)
 
     def test_a_dash_leading_title_reaches_the_script_as_an_argument(self) -> None:
-        # The shipped command itself, with its display line swapped for one that RETURNS
-        # both arguments: everything osascript parses -- the options, any separator, the
-        # argv -- is the real command's, and nothing is shown on screen.
+        # The shipped command itself, with its display line swapped for one that returns
+        # both arguments. Everything osascript parses (the options, any separator, the
+        # argv) is the real command's, and nothing is shown on screen.
         command = build_notify_command(Alert(_HOSTILE_TEXT, _HOSTILE_TEXT))
         display_line = command.index(_DISPLAY_LINE)
         command[display_line] = 'return (item 1 of argv) & "|" & (item 2 of argv)'

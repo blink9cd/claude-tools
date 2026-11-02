@@ -109,7 +109,7 @@ class PlistTest(unittest.TestCase):
         )
 
     def test_plist_never_uses_start_interval(self) -> None:
-        # StartInterval MISSES firings while asleep (man launchd.plist); the catch-up
+        # StartInterval misses firings while asleep (man launchd.plist); the catch-up
         # ping on wake depends on calendar firings, which coalesce instead.
         job = plistlib.loads(build_plist("p", "s", Path("/opt/fake/state"), 5))
         self.assertNotIn("StartInterval", job)

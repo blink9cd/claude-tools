@@ -1,6 +1,13 @@
+[build-system]
+# 77 is the first setuptools to accept the SPDX `license` string in [project] (PEP 639).
+# Bounded below 85: the install was verified with setuptools 84, and a new major may
+# change how it reads this flat layout.
+requires = ["setuptools>=77,<85"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "claude-tools"
-version = "0.1.0"
+version = "0.2.0"
 description = "Tools for working with Claude Code: a usage window primer that keeps a subscription usage window running while the machine is unattended"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
@@ -16,12 +23,19 @@ dependencies = []
 # Tests only: nothing at runtime imports it.
 test = ["hypothesis==6.165.10"]
 
+[tool.setuptools]
+# Deliberately empty. Every tool is run directly and puts its own sibling folders on
+# sys.path, so nothing here is imported from an installed location: installing this
+# distribution installs its metadata and whichever extra is asked for, never code. Left to
+# auto-discovery, setuptools refuses this flat layout of sibling folders outright.
+packages = []
+
 [tool.ruff]
 target-version = "py312"
 
 [tool.ruff.format]
-# The Python blocks inside the Markdown docs are laid out by hand -- a call shown before
-# and after on a few lines, an API table aligned in columns -- and ruff's formatter would
+# The Python blocks inside the Markdown docs are laid out by hand (a call shown before
+# and after on a few lines, an API table aligned in columns), and ruff's formatter would
 # reflow them into one argument per line. The docs keep their layout; every .py file is
 # still held to the formatter.
 exclude = ["*.md"]
@@ -54,8 +68,8 @@ mypy_path = [
   "$MYPY_CONFIG_FILE_DIR/help_formatter",
   "$MYPY_CONFIG_FILE_DIR/bounded_run",
   "$MYPY_CONFIG_FILE_DIR/bounded_run/src",
-  "$MYPY_CONFIG_FILE_DIR/schedule_artifacts",
-  "$MYPY_CONFIG_FILE_DIR/schedule_artifacts/src",
+  "$MYPY_CONFIG_FILE_DIR/os_schedule_gen",
+  "$MYPY_CONFIG_FILE_DIR/os_schedule_gen/src",
   "$MYPY_CONFIG_FILE_DIR/live_pid_guard",
 ]
 
@@ -81,19 +95,19 @@ exclude_also = [
   'pragma:\s*only-on\s+win32\b${OS-}',
 ]
 
-# The tables below configure the gates run over this tree before it is published. They are
-# inert for anyone who only runs the tools or their tests.
-
 [tool.gate_cache]
-# Every variable that changes which tests run, which any runner that caches results must
-# key on. USAGE_WINDOW_PRIMER_LIVE_PING, USAGE_WINDOW_PRIMER_LIVE_NOTIFY and USAGE_WINDOW_PRIMER_LIVE_TASK each opt in to
-# one live test (a real ping, a real notification, a real Windows scheduled task);
-# USAGE_WINDOW_PRIMER_OFFLINE skips the test classes that run the real osascript or launchctl.
-# LOCALAPPDATA, SYSTEMROOT, USERDOMAIN and USERNAME are no test switches: the Windows
-# backend reads them, every test injects its own environment, and they are listed
-# because the check below holds every read by name to this list.
-# usage_window_primer/tests/test_usage_window_primer_env_declared.py fails when this list and the
-# usage window primer's environment reads, by literal or module-level constant, differ.
+# Kept for the test named at the end of this comment, which reads it; no tool here caches
+# test results. It lists every variable that changes which tests run, which any runner
+# that caches results must key on. USAGE_WINDOW_PRIMER_LIVE_PING,
+# USAGE_WINDOW_PRIMER_LIVE_NOTIFY, and USAGE_WINDOW_PRIMER_LIVE_TASK each opt in to one
+# live test (a real ping, a real notification, a real Windows scheduled task);
+# USAGE_WINDOW_PRIMER_OFFLINE skips the test classes that run the real osascript or
+# launchctl. LOCALAPPDATA, SYSTEMROOT, USERDOMAIN, and USERNAME are no test switches: the
+# Windows backend reads them, every test injects its own environment, and they are listed
+# because that test holds every read by name to this list.
+# usage_window_primer/tests/test_usage_window_primer_env_declared.py fails when this list
+# and the usage window primer's environment reads, by literal or module-level constant,
+# differ.
 env = [
   "USAGE_WINDOW_PRIMER_LIVE_NOTIFY",
   "USAGE_WINDOW_PRIMER_LIVE_PING",
@@ -104,48 +118,3 @@ env = [
   "USERDOMAIN",
   "USERNAME",
 ]
-
-[tool.pii_scan]
-# The license names its copyright holder, which is its purpose.
-exclude = ["LICENSE"]
-
-[tool.python_gate]
-# bounded_run ships two fixtures its live boundary tests launch, gc_child.py and
-# nest_child.py, and a human can run either by hand to watch the bound hold. Each is an
-# INPUT a test drives, not a module of the library -- and each does its work at import,
-# gc_child.py never exiting and nest_child.py waiting on it, so neither could be imported
-# by a paired test even in principle.
-exclude = ["bounded_run/samples"]
-
-[tool.samples_presence]
-# Libraries with no CLI: nothing in them runs by hand against a sample input.
-exempt = ["stdio_utf8", "help_formatter", "schedule_artifacts", "live_pid_guard"]
-
-[tool.stdio_policy]
-# The whole tree, the vendored libraries included: a library is exactly where a stray
-# print() does not belong.
-paths = ["."]
-
-[tool.dep_audit]
-# Pinning checks only in the inner loop; the network audit is run on demand.
-offline = "skip"
-
-[tool.prose_terms]
-# Words this repository's prose must not use, so they cannot creep back in: pointers to a
-# design document, to a numbered decision in it, and to a standards or notes file, none of
-# which ship here. State the rule or the measured fact instead, or cite a doc that ships.
-# The gate prunes samples/ by name, so those READMEs are held to the same words by review.
-# Each entry waives itself: the declaration is not prose.
-terms = [
-  # prose: ignore[spec] the declaration itself
-  "spec",
-  # prose: ignore[TECHNICAL_NOTES] the declaration itself
-  "TECHNICAL_NOTES",
-]
-
-[tool.prose_terms.patterns]
-# A design decision's number, a capital D and one digit, with the decision it names left out.
-ruling-tag = '(?<![0-9A-Za-z_])(?-i:D)[1-9](?![0-9A-Za-z_])'
-# The standards file, by its file name: a bare word would also ban the plain plural
-# "agents", which a tool about launchd agents and Claude agents needs.
-agents-file = '(?<![0-9A-Za-z_])AGENTS\.md'  # prose: ignore[agents-file] the declaration itself

@@ -58,8 +58,17 @@ class RequiredOptionHelpTest(unittest.TestCase):
         parser = build_parser(_STATE_DIR)
         self.assertIsInstance(
             parser.formatter_class(prog="x"),
-            help_formatter.ReqAwareDefaultsFormatter,
+            help_formatter.UnsetHidingFormatter,
         )
+
+    def test_an_option_left_unset_shows_no_default(self) -> None:
+        # --start, --last-run, and --ping-output-file default to None, which nobody can
+        # type; "(default: None)" would only say the option was not given.
+        text = build_parser(_STATE_DIR).format_help()
+        for option in ("--start", "--last-run", "--ping-output-file"):
+            with self.subTest(option=option):
+                self.assertNotIn("(default:", _option_help_line(text, option))
+        self.assertIn("(default: 5)", _option_help_line(text, "--poll-minutes"))
 
     def test_mode_shows_no_default_over_legacy_argparse(self) -> None:
         # Patching the stock hook reproduces the old unconditional append on any

@@ -52,8 +52,8 @@ def alert_for(before: int, after: int, detail: str) -> Alert | None:
     """The notification a tick owes, given the failure count *before* and *after* it.
 
     *detail* is the tick's outcome detail, quoted in a failing alert with every
-    character that is not printable -- NUL and the other control characters, newlines,
-    tabs, a lone surrogate -- turned into a space, and then its whitespace collapsed to
+    character that is not printable (NUL and the other control characters, newlines,
+    tabs, a lone surrogate) turned into a space, and then its whitespace collapsed to
     single spaces. The detail is the CLI's own text: a NUL or a lone surrogate in argv
     makes `osascript` fail to start at all, the CLI's error message can span lines, and a
     message cut to its cap must not spend it on blank ones.

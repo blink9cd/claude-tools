@@ -1,15 +1,15 @@
 """The usage_window_primer's launchd user agent: build its plist, load and unload it, confirm both.
 
-The schedule is ``StartCalendarInterval`` -- one ``{Minute: m}`` entry per poll slot --
+The schedule is ``StartCalendarInterval``, one ``{Minute: m}`` entry per poll slot,
 and deliberately not ``StartInterval``: `man launchd.plist` documents that an interval
-job MISSES firings while the machine sleeps, whereas calendar firings missed during sleep
+job misses firings while the machine sleeps, whereas calendar firings missed during sleep
 coalesce into one firing on wake, and the catch-up ping depends on that. ``RunAtLoad``
 covers a power-off, which no calendar firing survives.
 
 Every command goes through the injected `Runner`, so no test touches the real agent
 list. Loading and unloading are both confirmed by polling ``launchctl print`` rather than
 trusting a command's own exit code, and a ``print`` that fails outright (a timeout, an
-unrunnable launchctl) is read as no answer at all -- never as "not loaded", which would
+unrunnable launchctl) is read as no answer at all, never as "not loaded", which would
 let an uninstall report success while the agent is still running.
 
 `LaunchdBackend` puts these functions behind the `scheduler.SchedulerBackend` interface,
@@ -110,8 +110,8 @@ def user_domain(run: Runner) -> str:
 def agent_loaded(run: Runner, domain: str) -> bool:
     """Whether launchd currently has the agent loaded in *domain*.
 
-    True on exit 0 and False on `LAUNCHCTL_NOT_FOUND_EXIT`. Any other exit -- a timeout,
-    an unrunnable launchctl -- answers neither way, so it raises AgentError carrying the
+    True on exit 0 and False on `LAUNCHCTL_NOT_FOUND_EXIT`. Any other exit (a timeout,
+    an unrunnable launchctl) answers neither way, so it raises AgentError carrying the
     exit code and stderr instead of passing for "not loaded".
     """
     code, _out, err = _launchctl(run, "print", f"{domain}/{LAUNCHD_LABEL}")

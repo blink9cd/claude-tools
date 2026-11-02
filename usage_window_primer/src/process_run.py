@@ -6,7 +6,7 @@ The single subprocess seam for the usage_window_primer tool: the ping (`ping_run
 unit tests replace it with a fake of the same shape. A command that cannot finish, or that
 the OS cannot start, comes back as a distinct exit code rather than an exception, so callers classify
 one tuple instead of catching two exception families. An argument the OS cannot receive
-at all -- one holding a NUL -- still raises ``ValueError`` before any child exists: that
+at all (one holding a NUL) still raises ``ValueError`` before any child exists: that
 is malformed input from the caller, not a failure of the command.
 """
 
@@ -17,7 +17,7 @@ import sys
 from collections.abc import Callable, Mapping
 from pathlib import Path
 
-# bounded_run, at ONE fixed place: its folder directly under the repository root, two
+# bounded_run, at one fixed place: its folder directly under the repository root, two
 # levels above this file's own folder. It is what makes the timeout bind: it kills the
 # child's whole process tree before touching the captured pipes, where subprocess.run
 # kills only the direct child (bounded_run/bounded_run.md, "Why it exists"). A fixed path

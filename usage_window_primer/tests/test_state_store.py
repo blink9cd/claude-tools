@@ -61,7 +61,7 @@ def _open_on_a_full_disk(*, dir: Path, prefix: str, delete: bool) -> io.Buffered
     """Stand in for NamedTemporaryFile with a real file whose buffered writes never flush.
 
     A small write only fills the buffer and succeeds; the flush fails, and so does the
-    second flush that close() performs -- the sequence a genuinely full disk produces.
+    second flush that close() performs: the sequence a genuinely full disk produces.
     *delete* is accepted to match the real call and ignored: this file is never removed
     automatically either.
     """
@@ -161,8 +161,8 @@ class StateStoreTest(unittest.TestCase):
             sorted(os.listdir(self.state_dir)), [CONFIG_FILENAME, STATE_FILENAME]
         )
         # A save that fails anywhere between creating its temporary file and the rename
-        # must remove that file -- an unattended tick would otherwise strand one per
-        # failing run -- and must raise the failure that happened, not the repeat of it
+        # must remove that file (an unattended tick would otherwise strand one per
+        # failing run), and must raise the failure that happened, not the repeat of it
         # that closing a file with an unflushable buffer produces.
         cases: dict[str, tuple[object, str, object, tuple[int, str]]] = {
             "flush on a full disk": (

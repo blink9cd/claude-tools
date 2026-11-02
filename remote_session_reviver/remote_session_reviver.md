@@ -1,6 +1,6 @@
 # remote_session_reviver
 
-A Claude desktop app **scheduled task** that keeps the app's Code-tab sessions reachable from a
+A Claude desktop app scheduled task that keeps the app's Code-tab sessions reachable from a
 phone through Remote Control. `SKILL.md` beside this file is the task's prompt and its source of
 truth; the copy the app runs is installed from it (*Sync* below).
 
@@ -15,7 +15,7 @@ for at least an hour. A session active more recently is probably still running, 
 re-enables Remote Control only by starting a stopped session, so pinging it would only drop an
 unrelated turn into a conversation in use.
 
-A session the previous run pinged (or flagged) that is still off is **flagged** instead of pinged
+A session the previous run pinged (or flagged) that is still off is flagged instead of pinged
 again: the run's report lists it under "Needs its Remote Control switch". The run reads the
 previous run's report to find these. A cold start restores Remote Control only for a session the
 app remembers as on, so a session that never had it, or had it off before it stopped, stays off
@@ -29,7 +29,7 @@ What the app's own log showed, and what it rules out:
   time.
 - A session that a message cold-starts logs `[rcAutoEnable] verdict: enable=true ...
   trigger=cold_resume`, and its Remote Control is back on by the next run.
-- Code sessions log `[WarmLifecycle:session] Idle timeout disabled`: the app has **no** idle
+- Code sessions log `[WarmLifecycle:session] Idle timeout disabled`: the app has no idle
   shutdown for them, so the drop is not an idle timeout.
 
 The app's log is `~/Library/Logs/Claude/main*.log` on macOS.
@@ -66,7 +66,13 @@ and others are stopped again.
 
 ## Install
 
-1. In the desktop app, create a scheduled task named `remote-session-reviver` (the prompt finds its
+1. Make the task's folder, so the folder picker in step 2 can select it:
+
+   ```bash
+   mkdir -p "$HOME/.claude/scheduled-tasks/remote-session-reviver"
+   ```
+
+2. In the desktop app, create a scheduled task named `remote-session-reviver` (the prompt finds its
    own runs by that ID), on the cron schedule
    `7 * * * *` (hourly; the app adds a fixed per-task delay), with these settings from the
    instructions box's toolbar and the row below it:
@@ -78,9 +84,9 @@ and others are stopped again.
      repository: a run reads no files, and a repository's instruction files would be re-read on
      every one of its model calls. The folder picker hides `~/.claude`; open that folder in
      Finder (**Go → Go to Folder…**) and drag its title-bar icon onto the picker.
-2. Replace its prompt with this folder's `SKILL.md` (*Sync*).
+3. Replace its prompt with this folder's `SKILL.md` (*Sync*).
 
-The schedule, permission mode, model and folder live in the app, not in `SKILL.md`.
+The schedule, permission mode, model, and folder live in the app, not in `SKILL.md`.
 
 Measured on 2026-10-21, a run costs about 410,000 input tokens (almost all cache reads) and
 2,700 output tokens over five model calls, whether or not it pings anything: nearly all of it

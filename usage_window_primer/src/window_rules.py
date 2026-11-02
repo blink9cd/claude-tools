@@ -1,7 +1,8 @@
 """The usage_window_primer tick's decisions, as pure functions of time and recorded facts.
 
 Nothing here reads a clock, a file or a process: the caller passes ``now`` in, which is
-what lets every boundary -- a tick landing exactly on the window end -- be tested exactly.
+what lets every boundary, such as a tick landing exactly on the window end, be tested
+exactly.
 A 5-hour window opens on the first message after the previous one ended, so a tick pings
 as soon as the recorded end has passed and otherwise does nothing.
 """
@@ -147,8 +148,8 @@ def parse_user_datetime(text: str) -> datetime:
 
     Raises ValueError when *text* is not ISO 8601 or lies outside the supported range.
     """
-    # astimezone() on a NAIVE datetime reads it as system local time, applying the DST
-    # rule in force on that date -- which an offset captured "now" would get wrong.
+    # astimezone() on a naive datetime reads it as system local time, applying the DST
+    # rule in force on that date, which an offset captured "now" would get wrong.
     try:
         return datetime.fromisoformat(text).astimezone(UTC)
     except OverflowError as exc:

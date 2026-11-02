@@ -34,7 +34,7 @@ every test run, against the real clock as here, so the pair cannot drift from th
 `ping_output_error.jsonl` is a ping the CLI answered with an error. Its shape was measured
 on a real expired login: the result event's `subtype` still reads `success`, only
 `is_error` marks the failure, and the CLI's own explanation is in its `result` text. That
-wording is illustrative — the real text was not captured. The same recipe, pointed at it,
+wording is illustrative; the real text was not captured. The same recipe, pointed at it,
 exits 1 and writes one log line:
 
 ```bash

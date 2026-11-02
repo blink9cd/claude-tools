@@ -1,4 +1,4 @@
-"""One real ping through the real `claude` CLI -- the boundary no fake can prove.
+"""One real ping through the real `claude` CLI: the boundary no fake can prove.
 
 Every other suite fakes the runner, which proves the classification but not the
 CONTRACT: a renamed event, a moved field or a changed flag would leave them all green.

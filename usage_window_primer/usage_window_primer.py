@@ -19,7 +19,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TextIO
 
-# stdio_utf8 and help_formatter, at ONE fixed place each: their folders directly under the
+# stdio_utf8 and help_formatter, at one fixed place each: their folders directly under the
 # repository root, this file's grandparent (stdio_utf8/stdio_utf8.md, "How this project's
 # tools import it"). Appended, not inserted, so neither can shadow src/ or the standard
 # library. Not a search of the parent directories: with a folder missing, a search would
@@ -141,8 +141,9 @@ def build_parser(default_dir: Path) -> argparse.ArgumentParser:
             "unattended."
         ),
         # The shared formatter, not the stock one: below 3.13 the stock one stamps
-        # "(default: None)" on the required --mode, and the floor is 3.12.
-        formatter_class=help_formatter.ReqAwareDefaultsFormatter,
+        # "(default: None)" on the required --mode, and the floor is 3.12. This variant
+        # also hides the note on an option left unset, whose None no one can type.
+        formatter_class=help_formatter.UnsetHidingFormatter,
         epilog=(
             "Prerequisites: macOS (a launchd user agent) or Windows (a Task "
             "Scheduler task), and the claude CLI on PATH and signed in to a "
@@ -150,8 +151,8 @@ def build_parser(default_dir: Path) -> argparse.ArgumentParser:
             "Run order: --mode install once, and again to change a setting; the "
             "scheduler then runs --mode tick by itself; --mode status any time; "
             "--mode uninstall to stop.\n\n"
-            "Exit codes: 0 success - 1 a ping failed, the scheduler did not confirm "
-            "the job, or --mode status found a failure streak - 2 bad arguments, no "
+            "Exit codes: 0 success; 1 a ping failed, the scheduler did not confirm "
+            "the job, or --mode status found a failure streak; 2 bad arguments, no "
             "install, or an unreadable config or state file."
         ),
     )
@@ -412,9 +413,9 @@ def run_install(args: argparse.Namespace, seams: BoundSeams) -> int:
     config = PrimerConfig(
         start, args.model, args.prompt, args.poll_minutes, claude_path
     )
-    # Recorded BEFORE the job is scheduled: launchd's RunAtLoad fires a tick at
+    # Recorded before the job is scheduled: launchd's RunAtLoad fires a tick at
     # bootstrap, and that tick reads config.json and state.json. Do not reorder this to
-    # record after the scheduler confirms the job -- that first tick would find no install.
+    # record after the scheduler confirms the job, or that first tick would find no install.
     save_config(state_dir, config)
     if last_run is not None:
         save_state(state_dir, record_manual_last_run(state, last_run))

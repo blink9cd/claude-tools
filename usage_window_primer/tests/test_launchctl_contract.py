@@ -10,8 +10,8 @@ It calls launchctl and id by their absolute paths, as the tool does, which a sta
 first on PATH cannot answer, so `USAGE_WINDOW_PRIMER_OFFLINE=1` skips it for a run that must not
 reach the real ones, as in an export's proof. It is read-only: the one command is
 a `launchctl print` of a label that is never installed, so nothing is loaded, unloaded
-or written. It does not call `agent_loaded`, which is hardwired to the real label --
-once the usage_window_primer is installed that label IS loaded, so the answer would depend on this
+or written. It does not call `agent_loaded`, which is hardwired to the real label:
+once the usage_window_primer is installed that label is loaded, so the answer would depend on this
 machine's agent list instead of the contract.
 """
 

@@ -3,7 +3,7 @@
 Every flag was measured: together they cut a ping from 31,613
 input tokens to 6,710 while still authenticating with the subscription (2026-09-13; the
 same ping measured 3,697 on 2026-10-19). `--bare` is
-deliberately absent -- it refuses subscription auth, so a bare ping would never open a
+deliberately absent: it refuses subscription auth, so a bare ping would never open a
 subscription window at all.
 """
 
@@ -25,7 +25,7 @@ from process_run import TIMEOUT_EXIT_CODE, Runner, run_process
 from state_store import PrimerConfig
 
 PING_TIMEOUT_SECONDS = 120.0
-# Keeps every CLAUDE.md -- user, project and local -- out of the ping's context.
+# Keeps every CLAUDE.md (user, project, and local) out of the ping's context.
 DISABLE_CLAUDE_MDS_ENV = "CLAUDE_CODE_DISABLE_CLAUDE_MDS"
 # Removed from the inherited environment: each makes the CLI authenticate with an API key
 # or a token instead of the subscription, or send the call to another endpoint or cloud
@@ -83,7 +83,7 @@ def _failure_detail(code: int, stdout: str, stderr: str, outcome: PingOutcome) -
     before the bound. Otherwise, when the stream held a failed result event, its reason
     leads and stderr follows, so stderr never hides the CLI's own error and the log cap
     cuts stderr first. A success result is not combined: its "ping succeeded" would lead
-    the stderr that explains the failure. In every other case stderr stands alone --
+    the stderr that explains the failure. In every other case stderr stands alone,
     or, when it is empty, the stream's reason does: the CLI can report its error on stdout
     alone, and the line must not end bare.
     """

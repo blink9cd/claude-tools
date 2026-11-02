@@ -35,7 +35,7 @@ from process_run import (  # noqa: E402 - same bootstrap
 # sleep: only a bound that holds against the grandchild finishes inside it.
 _GRANDCHILD_BOUND_SECONDS = 10.0
 # The timeout every grandchild run gets. The child's interpreter start, imports, Popen and
-# both pid writes must all finish inside it even on a loaded machine -- a kill that lands
+# both pid writes must all finish inside it even on a loaded machine: a kill that lands
 # first leaves no grandchild to test. With the reap poll below it still ends well inside the
 # grandchild's sleep, so a grandchild seen gone was killed rather than finished.
 _GRANDCHILD_TIMEOUT_SECONDS = 3.0
@@ -79,7 +79,7 @@ class _GrandchildRun(NamedTuple):
     code: int
     out: str
     elapsed: float
-    # False unless the grandchild was seen gone -- so always False on Windows, where it cannot
+    # False unless the grandchild was seen gone, so always False on Windows, where it cannot
     # be probed and the tests asserting on it are skipped.
     grandchild_gone: bool
 

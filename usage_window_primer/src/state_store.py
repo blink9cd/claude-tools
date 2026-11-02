@@ -1,8 +1,8 @@
 """The usage_window_primer tool's files under its state directory: config, state, and the log.
 
 `config.json` is written only by ``--mode install``; `state.json` by ``--mode tick`` and
-by an install given ``--last-run``. Both are replaced atomically -- written to a temporary
-file in the same directory, then renamed over the original -- because ``--mode status``
+by an install given ``--last-run``. Both are replaced atomically (written to a temporary
+file in the same directory, then renamed over the original), because ``--mode status``
 may read either while a tick is writing it. A file that exists but does not hold what
 this tool wrote raises `StoreError` when read. ``--mode tick`` and ``--mode status``
 never overwrite a corrupt file of either kind. ``--mode install`` is deliberately
@@ -26,7 +26,7 @@ from pathlib import Path
 CONFIG_FILENAME = "config.json"
 STATE_FILENAME = "state.json"
 LOG_FILENAME = "usage_window_primer.log"
-# Caps the log so a long offline stretch -- one failed ping per tick -- cannot grow it
+# Caps the log so a long offline stretch, one failed ping per tick, cannot grow it
 # without bound; at the default 5-minute tick this is about three and a half days.
 LOG_MAX_LINES = 1000
 # The longest quote of a malformed value an error carries. A tick reports a corrupt file

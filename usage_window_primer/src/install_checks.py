@@ -122,7 +122,7 @@ def locate_claude(
             f"{CLAUDE_EXECUTABLE} is not on PATH; run install from a shell where it is"
         )
     # Absolute, because a relative PATH entry makes `which` answer relative and the
-    # scheduler runs the tick from another working directory. NOT resolve(): the launcher
+    # scheduler runs the tick from another working directory. Not resolve(): the launcher
     # is typically a symlink into a versioned directory that auto-update replaces, so a
     # resolved target would stop existing after the next update.
     path = os.path.abspath(found)

@@ -142,7 +142,7 @@ class RunPingTest(unittest.TestCase):
 
     def test_a_failing_exit_with_a_cli_error_result_logs_the_cli_message(self) -> None:
         # The measured expired-login shape: exit 1, empty stderr, and a result event whose
-        # subtype still reads "success" -- the log line must carry the CLI's own words.
+        # subtype still reads "success". The log line must carry the CLI's own words.
         runner = _runner((1, stream(SYSTEM_INIT, CLI_ERROR_RESULT), ""))
         outcome = run_ping(_CONFIG, _STATE_DIR, runner=runner, base_env={})
         self.assertEqual(outcome.kind, OUTCOME_FAILED)

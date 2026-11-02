@@ -116,7 +116,7 @@ class InstallTest(unittest.TestCase):
     ) -> None:
         # What is under test is where config.json lands. win32 selects the Task
         # Scheduler backend, which refuses this interpreter for having no pythonw.exe
-        # beside it -- but only after config.json is recorded, and before any schtasks
+        # beside it, but only after config.json is recorded, and before any schtasks
         # call, so the runner is given no answers at all.
         local = self.home / "AppData" / "Local"
         # The backend stats the real filesystem, so the interpreter sits in a folder

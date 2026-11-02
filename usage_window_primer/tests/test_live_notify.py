@@ -1,4 +1,4 @@
-"""One real notification through the real `osascript` -- the boundary no fake can prove.
+"""One real notification through the real `osascript`: the boundary no fake can prove.
 
 The unit suites prove what the alert says and that text reaches `osascript` unaltered,
 but not that macOS SHOWS it: a script `osascript` refuses, or a notification permission

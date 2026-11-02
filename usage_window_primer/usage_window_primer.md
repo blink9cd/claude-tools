@@ -7,14 +7,14 @@ already open when you return.
 
 ## How it runs automatically
 
-`--mode install` writes a launchd **user agent** into `~/Library/LaunchAgents` and loads
-it. From then on macOS runs `--mode tick` by itself — no terminal, no app, no login
+`--mode install` writes a launchd user agent into `~/Library/LaunchAgents` and loads
+it. From then on macOS runs `--mode tick` by itself, with no terminal, no app, and no login
 item:
 
 - on every poll slot (minute `0, 5, 10, …` by default);
-- once when the Mac **wakes**, if slots were missed while asleep — launchd coalesces
+- once when the Mac wakes, if slots were missed while asleep, because launchd coalesces
   missed calendar firings into one;
-- once at **login**, after a power-off (`RunAtLoad`).
+- once at login, after a power-off (`RunAtLoad`).
 
 A tick that finds the window still open exits in milliseconds without contacting
 anything. Nothing runs while the Mac is asleep or powered off; the catch-up ping goes out
@@ -41,7 +41,7 @@ Rejected for the tick, and why:
 Install once, from a shell where `claude` is on `PATH`, from a copy of this project that
 will stay where it is. Install records three absolute paths: the Python interpreter that
 ran it (Python 3.12 or newer is required), this script, and `claude`. If any of them moves
-— a checkout or worktree that is later removed, an interpreter replaced by an upgrade —
+(a checkout or worktree that is later removed, an interpreter replaced by an upgrade),
 re-run install. Every command here runs from this project's root directory, the folder
 holding `usage_window_primer/`, and `python` means that interpreter, Python 3.12 or newer.
 
@@ -58,10 +58,10 @@ python usage_window_primer/usage_window_primer.py --mode install --start 2026-09
 `--last-run` must not lie in the future (exit 2): a ping cannot have happened yet, and
 its window would hold every tick back until five hours after that moment.
 
-Install records `config.json` (and `state.json`, when `--last-run` is given) **before** it
+Install records `config.json` (and `state.json`, when `--last-run` is given) before it
 loads the agent, because `RunAtLoad` fires a tick the moment the agent loads and that tick
 reads those files. So a refused install (exit 1) leaves behind the new `config.json`, the
-new plist — which launchd loads at the next login — and, without `--last-run`, the
+new plist (which launchd loads at the next login) and, without `--last-run`, the
 existing `state.json`. Re-running `--mode install` is the remedy; `--mode uninstall`
 removes the plist.
 
@@ -111,7 +111,7 @@ at the `--last-run` time with `window ends … (manual)`, until the next ping is
 
 If the last attempt reads `(failed)`, `last success` shows when a ping last got through.
 Read `usage_window_primer.log` in the state directory, then `launchd.err.log` beside it. A tick
-that never ran at all — for example because the recorded interpreter moved — writes to
+that never ran at all, for example because the recorded interpreter moved, writes to
 neither, and appears only in the macOS system log.
 A `claude` installed through npm is a Node script, so it also needs `node` reachable from
 launchd's minimal `PATH`.
@@ -119,8 +119,8 @@ launchd's minimal `PATH`.
 ## When it keeps failing
 
 A failed ping is retried on the next tick, and a short run of failures shows nothing.
-When 12 pings in a row have failed — an hour of ticks at the default 5-minute poll while
-the Mac is awake — the tick shows a macOS notification titled
+When 12 pings in a row have failed (an hour of ticks at the default 5-minute poll while
+the Mac is awake), the tick shows a macOS notification titled
 `Claude usage window primer is failing`, with the count and the latest failure's detail. It shows
 once per streak, not once per tick. The first ping to get through after that shows a
 second one, `Claude usage window primer recovered`, naming how many failures it ended.
@@ -129,12 +129,12 @@ The notifications are sent through `osascript`, so System Settings > Notificatio
 them under **Script Editor**: allow them there, and choose their style. If `osascript`
 cannot run or reports an error, the tick writes a
 `WARNING: could not show the alert notification: …` line to `launchd.err.log` in the
-state directory; its exit code, `state.json` and its `usage_window_primer.log` line are the same as
+state directory; its exit code, `state.json`, and its `usage_window_primer.log` line are the same as
 if the notification had shown.
 
 While a streak lasts, `--mode status` prints `health failing (<n> pings in a row)` and
 exits 1, whether or not anyone saw the notification. `usage_window_primer.log` says why each ping
-failed. Fix the cause — for an expired login, sign in to `claude` again from a terminal —
+failed. Fix the cause (for an expired login, sign in to `claude` again from a terminal),
 and the next ping that gets through ends the streak.
 
 ## On Windows
@@ -167,7 +167,7 @@ python usage_window_primer\usage_window_primer.py --mode install
 **What it registers.** One task, `\UsageWindowPrimer\Tick`, whose action runs
 `pythonw.exe usage_window_primer.py --mode tick` against the state directory. Because the
 interpreter is `pythonw.exe`, a tick opens no console window, and every child it starts
-runs with `CREATE_NO_WINDOW`, so none of them does either. Install, status and uninstall
+runs with `CREATE_NO_WINDOW`, so none of them does either. Install, status, and uninstall
 run `schtasks` with the same flag, as `%SYSTEMROOT%\System32\schtasks.exe`, never by a
 `PATH` lookup (`C:\Windows` stands in when `SYSTEMROOT` is unset). The task has two
 triggers:
@@ -183,7 +183,7 @@ slept runs once it wakes. Install confirms the registration by reading the task 
 `schtasks /Query`.
 
 **The files.** The state directory defaults to `%LOCALAPPDATA%\usage_window_primer\`. It
-holds `config.json`, `state.json` and `usage_window_primer.log` as on macOS, plus:
+holds `config.json`, `state.json`, and `usage_window_primer.log` as on macOS, plus:
 
 - `task.out.log` and `task.err.log`, where a tick's own output lands, because
   `pythonw.exe` gives it no console streams;
@@ -199,7 +199,7 @@ reading `registered (<status>)`, where the status is Task Scheduler's own (`Read
 follows the same rule as on macOS. `--mode uninstall` deletes the task and confirms it is
 gone; it keeps `task.xml` and the rest of the state directory.
 
-**Failure-streak alerts are not shown on Windows yet.** A tick that would have shown one
+**Failure-streak alerts.** They are not shown on Windows yet. A tick that would have shown one
 writes a `WARNING: could not show the alert notification: …` line to `task.err.log`
 instead. The streak itself still counts, and `--mode status` still prints
 `health failing (<n> pings in a row)` and exits 1 while it lasts, so check `status` when
@@ -211,8 +211,8 @@ generated by install, so an argument error there means the install itself is sta
 re-run install. A tick that never started at all shows only in Task Scheduler's
 **Last Run Result** for the task.
 
-**The live smoke test** registers a probe task under its own `\UsageWindowPrimerProbe\`
-folder, never the real one, reads it back, removes it and reads it back as gone. Its time
+**The live smoke test.** It registers a probe task under its own `\UsageWindowPrimerProbe\`
+folder, never the real one, reads it back, removes it, and reads it back as gone. Its time
 trigger starts a day ahead, so the probe never runs a tick. Run it from PowerShell 5.1:
 
 ```powershell
@@ -225,7 +225,7 @@ Remove-Item Env:USAGE_WINDOW_PRIMER_LIVE_TASK
 
 | Option | Default | Modes | Meaning |
 | --- | --- | --- | --- |
-| `--mode` | required | — | `install`, `uninstall`, `tick` or `status` |
+| `--mode` | required | all | `install`, `uninstall`, `tick`, or `status` |
 | `--state-dir` | `$HOME/.usage_window_primer`; on Windows `%LOCALAPPDATA%\usage_window_primer` when `LOCALAPPDATA` is set | all | Holds `config.json`, `state.json`, `usage_window_primer.log` |
 | `--start` | none | install | No ping before this ISO 8601 moment; without an offset it is local time |
 | `--last-run` | none | install | A moment a ping is known to have happened, not in the future; the window end becomes it plus 5 hours, source `manual`, until a real ping reports the true end |
@@ -245,7 +245,7 @@ CLAUDE_CODE_DISABLE_CLAUDE_MDS=1 claude -p "$PROMPT" --model "$MODEL" --setting-
 
 It runs from the state directory with a 120-second timeout and an empty stdin, so a run
 started from a pipe never waits on it. The environment variable and the empty
-`--setting-sources` keep instruction files, hooks and plugins out of the call;
+`--setting-sources` keep instruction files, hooks, and plugins out of the call;
 `--tools ""` means it cannot run anything; `--strict-mcp-config`, given no
 `--mcp-config`, starts no MCP server, so the user's own servers are not launched for
 every ping; `--no-session-persistence` keeps it from writing a transcript. Measured
@@ -264,14 +264,14 @@ another device is still timed correctly.
 
 ## What a tick records
 
-Every ping attempt records its time and its outcome, whatever the outcome — `status`
+Every ping attempt records its time and its outcome, whatever the outcome; `status`
 prints them as `last attempt`. What else it records depends on the outcome:
 
 | Outcome | Recorded |
 | --- | --- |
 | `ok` | The ping time as the last success, and the reported window end (source `server`), or ping time plus 5 hours when none was reported or the reported one was refused (source `estimated`) |
 | `limited` | The ping time as the last success, and the reported reset (source `server`), so the tick waits instead of retrying; a refused reset is estimated the same way |
-| `failed` | The failure count, but not the last success or the window end; the next tick retries — offline, timeout, error exit, an error result, or no result |
+| `failed` | The failure count, but not the last success or the window end; the next tick retries. A ping fails when offline, on a timeout or an error exit, or with an error result or no result |
 
 A reported window end is believed only when it falls after the ping and at most 5 hours
 and 15 minutes later: the window cannot end before the ping that found it running, nor
@@ -293,17 +293,17 @@ there instead.
 A failed ping's detail is built from the evidence the ping left:
 
 - **A timeout** reads `exit 124: timed out after 120s`, then `; stderr: <text>` when the
-  CLI had written any, then the last stream event it wrote — for example
+  CLI had written any, then the last stream event it wrote, for example
   `exit 124: timed out after 120s; last event: system/init`. The event (`system/init`,
   `no output`, `no complete event`, ...) shows how far the CLI got before the 120-second
   bound.
 - **Any other failing exit whose output held a failed result event** gives the result's
-  reason — the CLI's own error text, when the result carries any. Only when stderr is
+  reason: the CLI's own error text, when the result carries any. Only when stderr is
   not blank does `; stderr: <text>` follow it, so the log's length cap cuts stderr before
   it cuts the error: `exit 1: CLI error: <message>; stderr: <text>`. The headline case,
   an expired login, exits 1 with empty stderr and an error result, and logs
   `exit 1: CLI error: <message>`.
-- **Any other failing exit** — no result event, or a result that reported success —
+- **Any other failing exit** (no result event, or a result that reported success)
   gives the CLI's stderr alone. A success result's reason never leads the stderr that
   explains the failure. When stderr is empty, the stream's own reason stands in, such as
   `no result event in the ping output`.
@@ -312,13 +312,13 @@ A failed ping's detail is built from the evidence the ping left:
 
 ## Exit codes
 
-- `0` — success, including a tick that had nothing to do, a `limited` ping, and
+- `0`: success, including a tick that had nothing to do, a `limited` ping, and
   `--mode status` with no failure streak, whatever the agent's state.
-- `1` — a ping failed, `--mode status` found a failure streak (see *When it keeps
+- `1`: a ping failed, `--mode status` found a failure streak (see *When it keeps
   failing*), or, for `--mode install` / `--mode uninstall`, the scheduler did not
   confirm the job (on Windows, also an install with no `pythonw.exe` beside the
   interpreter).
-- `2` — bad arguments (including an unreadable `--ping-output-file` or one given
+- `2`: bad arguments (including an unreadable `--ping-output-file` or one given
   without `--state-dir`, a `--state-dir` holding a control character, a
   `--poll-minutes` that does not divide 60, a `--start` or `--last-run` that is not a
   valid ISO 8601 moment, a `--last-run` in the future, a blank `--prompt`, one starting
@@ -340,7 +340,7 @@ python usage_window_primer/test_usage_window_primer.py
 No test contacts the network or `claude`, and the only one that reaches launchd is the
 launchctl contract test, which prints a label no install ever creates. The tests that
 run `osascript` by default give it a script that returns its arguments instead of
-showing them, so nothing appears on screen. The tool runs `launchctl`, `id` and
+showing them, so nothing appears on screen. The tool runs `launchctl`, `id`, and
 `osascript` by their absolute paths (`/bin/launchctl`, `/usr/bin/id`,
 `/usr/bin/osascript`), and so do these tests, so a stand-in first on PATH cannot answer
 them. `USAGE_WINDOW_PRIMER_OFFLINE=1` skips them and the launchctl contract test, for a run that

@@ -189,6 +189,50 @@ class SchtasksPathTest(unittest.TestCase):
         self.assertEqual(runner.commands()[0][0], schtasks_path(environ))
 
 
+class TaskNameTest(unittest.TestCase):
+    """The task name is held to a Task Scheduler path before any schtasks call can see it."""
+
+    def test_a_name_outside_the_path_shape_is_refused_at_construction(self) -> None:
+        # render_task_xml escapes the name into <URI> but does not refuse it, and
+        # schtasks reads /TN as a folder tree, so a `..` or empty segment would file the
+        # task somewhere else. Each of these is refused before the backend exists.
+        for name in (
+            "UsageWindowPrimer\\Tick",
+            "\\",
+            "\\UsageWindowPrimer\\\\Tick",
+            "\\..\\Tick",
+            "\\Usage Window\\Tick",
+            "\\<Primer>\\Tick",
+        ):
+            with self.subTest(name=name):
+                runner = ScriptedRunner({})
+                with self.assertRaisesRegex(ValueError, "task_name"):
+                    TaskSchedulerBackend(runner, _ENVIRON, task_name=name)
+                self.assertEqual(runner.commands(), [])
+
+    def test_the_renderer_refuses_a_name_outside_the_path_shape(self) -> None:
+        # The renderer is public on its own, so it holds the name as os_schedule_gen's
+        # build_task_xml does, not only when a backend calls it.
+        request = InstallRequest(
+            _FAKE_PYTHON, "C:/fake/usage_window_primer.py", Path("C:/fake/state"), 5
+        )
+        for name in ("\\..\\Tick", "Tick", "\\<Primer>\\Tick"):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(ValueError, "task_name"):
+                    build_primer_task_xml(
+                        request,
+                        pythonw=_FAKE_PYTHONW,
+                        user=_FAKE_USER,
+                        now_local=_NOW,
+                        task_name=name,
+                    )
+
+    def test_the_default_and_any_task_path_are_accepted(self) -> None:
+        for name in (TASK_NAME, "\\Folder\\Task", "\\Task"):
+            with self.subTest(name=name):
+                TaskSchedulerBackend(ScriptedRunner({}), _ENVIRON, task_name=name)
+
+
 class InstallTest(unittest.TestCase):
     """Write task.xml, register it with /Create, confirm it with /Query."""
 

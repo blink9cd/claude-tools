@@ -25,14 +25,19 @@ from collections.abc import Callable, Mapping
 from datetime import datetime
 from pathlib import Path, PureWindowsPath
 
-# schedule_artifacts, at ONE fixed place: its folder directly under the repository root,
-# as process_run places bounded_run, and for the same reason; schedule_artifacts puts its
+# os_schedule_gen, at one fixed place: its folder directly under the repository root,
+# as process_run places bounded_run, and for the same reason; os_schedule_gen puts its
 # own src/ on the path.
-sys.path.append(str(Path(__file__).resolve().parents[2] / "schedule_artifacts"))
+sys.path.append(str(Path(__file__).resolve().parents[2] / "os_schedule_gen"))
 
 from launch_agent import CONFIRM_ATTEMPTS, CONFIRM_INTERVAL_SECONDS
 from process_run import Runner
-from schedule_artifacts import AtLogon, RepeatEvery, render_task_xml
+from os_schedule_gen import AtLogon, RepeatEvery, render_task_xml
+
+# The task-path check os_schedule_gen's build_task_xml applies; render_task_xml, which
+# this task uses, escapes the name but does not refuse it. It is in os_schedule_gen's
+# private src/, which the import above has put on sys.path.
+from sched_escape import refuse_bad_task_name
 from scheduler import AgentError, InstallRequest, validate_poll_minutes
 from state_store import write_bytes_atomic
 
@@ -107,7 +112,12 @@ def build_primer_task_xml(
     now_local: datetime,
     task_name: str = TASK_NAME,
 ) -> str:
-    """The task XML for *request*: a repeating tick from this minute, and one at logon."""
+    r"""The task XML for *request*: a repeating tick from this minute, and one at logon.
+
+    A *task_name* that is not a ``\Folder\Task`` path raises ValueError, as
+    os_schedule_gen's ``build_task_xml`` does.
+    """
+    refuse_bad_task_name(task_name)
     # Floored to the minute so the repeat slots fall on whole minutes, as launchd's do.
     start = now_local.replace(second=0, microsecond=0)
     arguments = subprocess.list2cmdline(
@@ -158,7 +168,13 @@ class TaskSchedulerBackend:
         sleep: Callable[[float], None] = time.sleep,
         is_file: Callable[[Path], bool] = Path.is_file,
     ) -> None:
-        """Drive schtasks through *run*; its folder and the logon user come from *environ*."""
+        r"""Drive schtasks through *run*; its folder and the logon user come from *environ*.
+
+        A *task_name* that is not a ``\Folder\Task`` path raises ValueError here, before
+        any schtasks call: ``/TN`` reads it as a folder tree, so a ``..`` or an empty
+        segment would file the task somewhere else.
+        """
+        refuse_bad_task_name(task_name)
         self._run = run
         self._environ = environ
         self._schtasks_exe = schtasks_path(environ)
