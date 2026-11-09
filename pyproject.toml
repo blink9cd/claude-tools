@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claude-tools"
-version = "0.2.0"
+version = "0.3.0"
 description = "Tools for working with Claude Code: a usage window primer that keeps a subscription usage window running while the machine is unattended"
 readme = "README.md"
 license = "AGPL-3.0-or-later"

@@ -22,6 +22,36 @@ app remembers as on, so a session that never had it, or had it off before it sto
 however often it is pinged (seen 2026-10-21: no `rcAutoEnable` verdict for it at all). Turning
 its switch on once is enough; the app remembers it from then on.
 
+A session you finished and archived from the phone is left alone, provided the last line of
+its wrap-up is exactly `Wrapped up: ready to archive.` Archiving from the phone does not
+archive the desktop session: it only ends Remote Control (the log shows `bridge_state: "failed"
+("ended_elsewhere")`, code 4090), and the desktop session stays unarchived with Remote Control
+off, exactly like one a relaunch dropped. No session field tells the two apart, so without the
+marker every run pinged finished sessions back open (seen 2026-11-09). Before pinging, a run
+reads each candidate's last messages, skipping its own pings and their replies, and lists a
+session whose last real reply carries the marker under "Wrapped up, left alone" instead. Archive
+such a session on the Mac to clear it from the report. A pinged session replies
+`remote-session-reviver`, so a reopened transcript shows what woke it.
+
+Nothing prints the marker for you. To use it, add an instruction to your own Claude Code
+instructions (a user-level `CLAUDE.md`, for example) telling a session to end its last reply,
+once you agree the work is finished, with this line on its own:
+
+```text
+Wrapped up: ready to archive.
+```
+
+Without that instruction no session carries the marker, and a session you archived from the
+phone is pinged back open as before.
+
+A run also guards the usage budget. At 98 percent or more of the 5-hour or weekly window it
+pings nobody. From 90 percent it pings only sessions that dropped since the previous run (on or
+recent in that run's report, off now), which is the shape of an app relaunch. Without that
+exception, a relaunch late in the week left every session unreachable until the weekly reset
+(seen 2026-11-06: an update relaunch at 06:00 while weekly usage was at 91 percent, and eight
+hourly runs that each skipped every ping). A session that drops while a run is blocked is only
+"off" by the next run, not "dropped", so it waits for the gate to clear.
+
 What the app's own log showed, and what it rules out:
 
 - An update relaunch logs `[updater] Update downloaded` and, some minutes later,
