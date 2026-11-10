@@ -1,8 +1,9 @@
 {
   "files": {
     ".gitignore": "sha256:42eae550700e597864126a762545fe2f11eca00b858a903c45f8cbd996db71e9",
-    "CHANGELOG.md": "sha256:d61420f47b187746ebf788b2af20b445a8626e65fd9ccc68191fc1bf970a9839",
-    "LICENSE": "sha256:480bc086cc31abd0ec8598db97abf2a5490bf30613bc209342a4e2c71a0f8b87",
+    "CHANGELOG.md": "sha256:f04ef2504d36e1c1ef361bf493aea9bcae8d86bef5f5fb1b2ab45bf90568b769",
+    "LICENSE": "sha256:57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6",
+    "NOTICE": "sha256:327ceae4f0e5a0b8baa3c5cef657cc5bf1ed0d00964e056974dd774243224489",
     "README.md": "sha256:239b333b9c864fe83d3ad3ac30156b1a9e1d88b29e51fb0741340df0cc67271c",
     "bounded_run/bounded_run.md": "sha256:6c4249279c27a37a503ac33cf36d3899013883f3c62c58c30d3189f2e1065f5f",
     "bounded_run/bounded_run.py": "sha256:26a199312b446d4f1d9addd04d15e714d7acb38cb82c4889d744a72e922ca7a7",
@@ -64,7 +65,7 @@
     "os_schedule_gen/tests/test_samples.py": "sha256:bde0dd80b15e523a9b7695fb6c8f19cfe7395305f58232c6215f44c4e2ec318c",
     "os_schedule_gen/tests/test_schedule_forms.py": "sha256:7d4233924d68c689e90f866d7014ce05ec01bb66241f1a6391699f5eadffe537",
     "os_schedule_gen/tests/test_task_xml.py": "sha256:b0859696d24c38c47286cd8ad27934cce90be0ee5b3617b69c7ec6a13c7c9fe4",
-    "pyproject.toml": "sha256:46b64d56106415807e03aaedcc639c6ab91c2cc3b2b1a61ab9b4edeeedbe5b7e",
+    "pyproject.toml": "sha256:3a112dd9c7046f7116db436f7c0892dc63ce1efba104b825a59976785273a2c4",
     "remote_session_reviver/SKILL.md": "sha256:85d58c5fa5df3fab8d0b0082b8e5d42aec4a638cbde52d1572689a8ac4bbf90d",
     "remote_session_reviver/remote_session_reviver.md": "sha256:cd045044afb568ae1a77b2b7087a67a0d3ed74920a24f268b4cd1e52784452ba",
     "stdio_utf8/stdio_utf8.md": "sha256:fa107809d6b69bf06f96f2f85c3e1388838b756591f77f0e56aaf9ed47d77cca",
@@ -124,6 +125,6 @@
   },
   "name": "claude-tools",
   "schema": 1,
-  "source_commit": "a34e3f49f660cbf6bfd6f0926cf2bfe06d9dbf06",
-  "version": "0.3.0"
+  "source_commit": "9afc032130366c58dfaa87269ce45983b633921e",
+  "version": "0.3.1"
 }
